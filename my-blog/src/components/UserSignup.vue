@@ -19,10 +19,9 @@ import axios from 'axios';
         watch: {
             async userName(newUsername) {
                 try {
-                    console.log(newUsername)
                     const request = await axios.get(`/api/check_username?user_name=${newUsername}`);
                     let response = request.data;
-                    console.log(response);
+                    
                     if(response) {
                         this.usernameTaken = true;
                     } else {
