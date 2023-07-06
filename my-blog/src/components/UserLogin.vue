@@ -1,6 +1,37 @@
 <script>
+    import axios from 'axios';
     export default {
-        name: 'LoginComponent'
+        name: 'LoginComponent',
+        data() {
+            return {
+                userInput: '',
+                password: '',
+                wrongCredentials: false
+            }
+        },
+
+        methods: {
+            async userLogin() {
+                try {
+                    let request = await axios.post('/api/login', {
+                        user_input: this.userInput,
+                        password: this.password
+                    });
+                    let response = request.data;
+                    if(request.status == 200) {
+                        if(response) {
+                            this.$store.commit('setUser', response)
+                            this.$router.push('/');
+                        }
+                        else {
+                            this.wrongCredentials = true;
+                        }
+                    }
+                } catch(error) {
+                    console.log(error);
+                }  
+            }
+        }
     }
 </script>
 
@@ -9,11 +40,15 @@
         <h1>Login</h1>
         <div class="login-container__item">
             <p>Username</p>
-            <input type="text" placeholder="Enter Username" class="login-container__input">
+            <input type="text" placeholder="Enter Username" class="login-container__input" v-model="userInput">
         </div>
         <div class="login-container__item">
             <p>Password</p>
-            <input type="password" placeholder="Enter Password" class="login-container__input"> 
+            <div class="check-input">
+                <input type="password" placeholder="Enter Password" class="login-container__input" v-model="password">
+                <p v-if="wrongCredentials" class="wrong-input">Wrong password, try again!</p>
+            </div>
+             
         </div>
         <div class="login-container__item check-user">
             <div class="check-user__body">
@@ -23,14 +58,14 @@
             <p class="check-user__item">Forgot password?</p>
         </div>
         <p class="login-container__item"><router-link to="/signup" class="redirect-user">Don't have an account?</router-link></p>
-        <button class="login-button">Login</button>
+        <button class="login-button" @click="userLogin">Login</button>
    </div>
 </template>
 
 <style scoped>
 
     .login-container {
-        width: 70%;
+        width: 90%;
         border: 3px solid #98DFAF;
         padding: 10% 20% 10% 20%;
     }
@@ -39,7 +74,7 @@
     }
 
     .login-container__input {
-        width: 80%;
+        width: 70%;
         height: 30px;
     }
 
@@ -79,5 +114,18 @@
         color: black;
         font-size: 13px;
         color: tomato;
+    }
+
+    .wrong-input {
+        background: -webkit-linear-gradient( #C45AB3, #631A86);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        font-size: 13px;
+    }
+
+    .check-input {
+        display: flex;
+        column-gap: 10px;
+        align-items: center;
     }
 </style>
