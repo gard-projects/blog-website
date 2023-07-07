@@ -1,9 +1,11 @@
-from fastapi import FastAPI, Depends, Query
+from fastapi import FastAPI, Depends
+from fastapi.staticfiles import StaticFiles
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, Session
 from pydantic import BaseModel
 from models import Base, User
 import bcrypt
+from pathlib import Path
 
 # Connection string (SQLAlchemy uses it to connect to the database)
 DATABASE_URL = "sqlite:///./my-blog.db"
@@ -33,10 +35,12 @@ class ReturnUser(BaseModel):
     user_id: int
     user_name: str
     email: str
+    profile_image: str | None = None
     
 
 # Create FastAPI instance
 app = FastAPI()
+app.mount("/static", StaticFiles(directory="src/static"), name="static")
 
 # Function that provides a unique database session for each request (and closes the session afterwards)
 def get_db():
@@ -46,6 +50,18 @@ def get_db():
     finally:
         db.close()
 
+# Function for getting user's profile image (when logged in)
+def get_profile_image(user_id: str):
+    image_directory = Path("static/profileImages")
+    default_image_path = image_directory / "default.png"
+    # Path to user's profile image
+    image_path = image_directory / f"{user_id}.png"
+
+    # Check if image exists, if not, return default image
+    if image_path.exists():
+        return str(image_path).replace("\\", "/")
+    else:
+        return str(default_image_path).replace("\\", "/")
 
 # Check if username is in use (upon account registration)
 @app.get("/check_username")
@@ -89,8 +105,9 @@ def login(user: CurrentUser, db: Session = Depends(get_db)):
     # Check if the password matches
     if matching_user:
         if bcrypt.checkpw(user.password.encode('utf-8'), matching_user.password):
-            return ReturnUser(user_id=matching_user.id, user_name=matching_user.user_name, email=matching_user.email)
+            return ReturnUser(user_id=matching_user.id, user_name=matching_user.user_name, email=matching_user.email, profile_image = get_profile_image(matching_user.id) )
         else:
             return False
     else:
         return False
+    

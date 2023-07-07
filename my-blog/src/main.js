@@ -4,10 +4,11 @@ import Router from './router/router.js'
 import Store from './store/store.js'
 
 import { library } from '@fortawesome/fontawesome-svg-core'
-import { faCaretDown, faMagnifyingGlass, faRightToBracket, faCircleUser, faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons'
+import { faCaretDown, faMagnifyingGlass, faRightToBracket, faCircleUser, faEye, faEyeSlash,
+         faXmark } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 
-library.add(faCaretDown, faMagnifyingGlass, faRightToBracket, faCircleUser, faEye, faEyeSlash)
+library.add(faCaretDown, faMagnifyingGlass, faRightToBracket, faCircleUser, faEye, faEyeSlash, faXmark)
 
 const app = createApp(App)
 app.use(Router)
